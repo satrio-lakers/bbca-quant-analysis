@@ -19,6 +19,10 @@ dan uji stasioneritas sebagai fondasi time series modeling.
   Log Returns stasioner (p=0.000) ✓
 - **Volatility persistence (α+β):** 0.9277 — volatilitas sangat persisten
 - **ARIMA baseline:** tidak signifikan, mengkonfirmasi log returns mendekati white noise
+- **Volatility forecast 5 hari:** rata-rata 1.17% per hari 
+  (di bawah baseline 1.28% — kondisi diprediksi lebih tenang)
+- **Mean reversion terdeteksi:** volatilitas naik bertahap 
+  1.15% → 1.19% mencerminkan persistence 0.9277
 
 ## Pipeline
 1. Data acquisition — yfinance API
@@ -30,6 +34,7 @@ dan uji stasioneritas sebagai fondasi time series modeling.
 7. Stationarity testing — Augmented Dickey-Fuller
 8. ARIMA(1,0,1) baseline modeling
 9. GARCH(1,1) volatility modeling & persistence analysis
+10. Volatility forecasting — GARCH 5-day ahead forecast
 
 ## Tech Stack
 - Python 3
@@ -44,9 +49,13 @@ menghasilkan spurious regression. ADF test mengonfirmasi
 log returns BBCA stasioner dengan p-value < 0.001.
 
 ## Next Steps
-- ACF/PACF analysis untuk identifikasi parameter ARIMA
-- GARCH modeling untuk volatility forecasting
-- Integrasi data makroekonomi sebagai eksogenous variable
+- ~~ACF/PACF analysis~~ ✓
+- ~~ARIMA baseline modeling~~ ✓  
+- ~~GARCH volatility modeling~~ ✓
+- ~~Volatility forecasting~~ ✓
+- Financial data structures (de Prado approach)
+- Triple barrier method & labeling
+- ML model di atas fitur quant
 
 ## Author
 Aril Satrio Saputro  
