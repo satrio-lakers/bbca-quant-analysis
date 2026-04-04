@@ -17,6 +17,8 @@ dan uji stasioneritas sebagai fondasi time series modeling.
   - Desember 2023: sinyal Fed pivot + Red Sea crisis
 - **ADF Test:** Harga Close tidak stasioner (p=0.518), 
   Log Returns stasioner (p=0.000) ✓
+- **Volatility persistence (α+β):** 0.9277 — volatilitas sangat persisten
+- **ARIMA baseline:** tidak signifikan, mengkonfirmasi log returns mendekati white noise
 
 ## Pipeline
 1. Data acquisition — yfinance API
@@ -26,6 +28,8 @@ dan uji stasioneritas sebagai fondasi time series modeling.
 5. Outlier detection — z-score method
 6. Rolling volatility — 21-day annualized
 7. Stationarity testing — Augmented Dickey-Fuller
+8. ARIMA(1,0,1) baseline modeling
+9. GARCH(1,1) volatility modeling & persistence analysis
 
 ## Tech Stack
 - Python 3
