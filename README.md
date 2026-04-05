@@ -29,6 +29,14 @@ dan uji stasioneritas sebagai fondasi time series modeling.
   — class imbalance terdeteksi, perlu penanganan sebelum ML training
 - **BBCA karakteristik:** saham aktif dengan bias upward, 
   jarang stagnan lebih dari 10 hari
+- **Feature terpenting:** ma_dist (0.253) — jarak harga dari MA20 
+  adalah sinyal paling informatif untuk prediksi arah BBCA
+- **Feature terlemah:** log_return (0.074) — konfirmasi final 
+  bahwa returns BBCA mendekati white noise
+- **Model accuracy:** 20–51% per fold — tidak konsisten, 
+  belum reliable untuk trading nyata
+- **Volume sebagai sinyal:** vol_ratio (0.202) — volume relatif 
+  terhadap rata-rata historis adalah sinyal kedua terkuat
 
 ## Pipeline
 1. Data acquisition — yfinance API
@@ -43,6 +51,9 @@ dan uji stasioneritas sebagai fondasi time series modeling.
 10. Volatility forecasting — GARCH 5-day ahead forecast
 11. Dollar bars — de Prado alternative data structure
 12. Triple barrier method — proper ML labeling
+13. Feature engineering — momentum, volatility, volume ratio, mean reversion
+14. Random Forest classifier — TimeSeriesSplit 5-fold cross validation
+15. Feature importance analysis
 
 ## Tech Stack
 - Python 3
@@ -58,6 +69,10 @@ log returns BBCA stasioner dengan p-value < 0.001.
 De Prado (2018): model ML yang dilatih di time bars biasa 
 menghasilkan spurious results. Dollar bars + triple barrier 
 labeling adalah fondasi yang benar untuk quant ML strategy.
+Feature importance mengkonfirmasi temuan statistik sebelumnya:
+log_return BBCA mendekati white noise (ADF, ACF/PACF, ARIMA) —
+model sederhana tidak cukup untuk mengalahkan pasar. Improvement
+membutuhkan fitur yang lebih sophisticated dan data yang lebih banyak.
 
 ## Next Steps
 - ~~ACF/PACF analysis~~ ✓
@@ -66,9 +81,25 @@ labeling adalah fondasi yang benar untuk quant ML strategy.
 - ~~Volatility forecasting~~ ✓
 - ~~Dollar bars (de Prado)~~ ✓
 - ~~Triple barrier labeling~~ ✓
-- Feature engineering untuk ML
-- Random Forest / ML model training
-- Backtesting & performance evaluation
+- ~~Feature engineering~~ ✓
+- ~~Random Forest + feature importance~~ ✓
+- SMOTE untuk handle class imbalance
+- XGBoost sebagai model alternatif
+- Integrasi GARCH volatility sebagai fitur ML
+- Backtesting & Sharpe Ratio evaluation
+- Ekspansi ke multi-saham BEI
+
+## Model Performance Summary
+
+| Model | Keterangan | Hasil |
+|-------|------------|-------|
+| ARIMA(1,0,1) | Baseline time series | Tidak signifikan (p>0.05) |
+| GARCH(1,1) | Volatility modeling | Beta signifikan, persistence 0.9277 |
+| Random Forest | ML classifier | Akurasi 20–51%, belum konsisten |
+
+Ketiga model mengkonfirmasi: BBCA adalah saham efisien yang 
+sulit diprediksi dengan fitur teknikal sederhana. 
+Pendekatan yang lebih sophisticated diperlukan.
 
 ## Author
 Aril Satrio Saputro  
