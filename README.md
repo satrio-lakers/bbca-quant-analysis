@@ -25,7 +25,10 @@ Machine Learning.
 - **Triple barrier labels:** Buy 49.3% / Sell 39.7% / Hold 10.7%
 - **Feature terpenting:** ma_dist (0.253) — mean reversion signal
 - **Feature terlemah:** log_return (0.074) — konfirmasi white noise
-- **Model accuracy:** 40-42% — tidak konsisten lintas fold
+- **Total data final:** 336 bars (setelah clean pipeline)
+- **Distribusi label:** Buy 163 (48.5%) / Sell 135 (40.2%) / Hold 38 (11.3%)
+- **Model accuracy final:** 40.71% rata-rata (5-fold TimeSeriesSplit)
+- **Feature terpenting:** ma_dist — mean reversion signal terkuat
 
 ## Pipeline
 1. Data acquisition — yfinance API
@@ -48,13 +51,13 @@ Machine Learning.
 
 ## Model Performance Summary
 
-| Model | Keterangan | Hasil |
-|-------|------------|-------|
-| ARIMA(1,0,1) | Baseline time series | Tidak signifikan (p>0.05) |
-| GARCH(1,1) | Volatility modeling | Beta signifikan, persistence 0.9277 |
-| Random Forest | ML classifier | ~42%, tidak konsisten |
-| Random Forest + SMOTE | Handle imbalance | ~42%, minimal improvement |
-| Random Forest + GARCH | Hybrid approach | 41.22%, tidak membantu |
+| Model | Hasil |
+|-------|-------|
+| ARIMA(1,0,1) | Tidak signifikan (p>0.05) |
+| GARCH(1,1) | Persistence 0.9277, beta signifikan |
+| Random Forest baseline | 40.71% rata-rata, tidak konsisten |
+| Random Forest + SMOTE | ~42%, minimal improvement |
+| Random Forest + GARCH vol | 41.22%, tidak membantu |
 
 ## Key Insight
 Seluruh pipeline mengkonfirmasi satu temuan yang konsisten:
