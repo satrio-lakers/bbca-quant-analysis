@@ -1,93 +1,50 @@
-# BBCA Stock Analysis: Financial Data Preprocessing & Stationarity Testing
+# BBCA Quant Analysis: From Preprocessing to ML Strategy
 
 ## Overview
-Analisis preprocessing data saham BBCA (Bank Central Asia) periode 
-Januari 2022 – Januari 2024 menggunakan Python. Proyek ini mencakup 
-eksplorasi distribusi returns, deteksi outlier berbasis makroekonomi, 
-dan uji stasioneritas sebagai fondasi time series modeling.
+Analisis kuantitatif komprehensif saham BBCA (Bank Central Asia) 
+periode Januari 2022 – Januari 2024. Proyek ini mengimplementasikan 
+pipeline quant lengkap dari preprocessing hingga ML strategy, 
+mengikuti pendekatan de Prado (2018) dalam Advances in Financial 
+Machine Learning.
 
 ## Key Findings
-- **Rata-rata volatilitas tahunan:** 19.95%
-- **Skewness:** -0.145 (sedikit miring kiri — kerugian ekstrem 
-  lebih mungkin dari keuntungan ekstrem)
-- **Kurtosis:** 2.09 (platykurtic — distribusi lebih tipis dari normal, 
-  kejadian ekstrem relatif jarang)
-- **Outlier terdeteksi:** 3 tanggal, semua berkorelasi dengan kejadian makro:
-  - Mei 2022: krisis energi Eropa + Fed rate hike 50bps
-  - Desember 2023: sinyal Fed pivot + Red Sea crisis
+- **Volatilitas tahunan:** 19.95% rata-rata
+- **Skewness:** -0.145 — sedikit miring kiri, kerugian ekstrem 
+  lebih mungkin dari keuntungan ekstrem
+- **Kurtosis:** 2.09 — distribusi lebih tipis dari normal, 
+  kejadian ekstrem relatif jarang
+- **Outlier:** 3 tanggal terdeteksi, semua berkorelasi dengan 
+  kejadian makro (Fed rate hike Mei 2022, Red Sea crisis Des 2023)
 - **ADF Test:** Harga Close tidak stasioner (p=0.518), 
   Log Returns stasioner (p=0.000) ✓
-- **Volatility persistence (α+β):** 0.9277 — volatilitas sangat persisten
-- **ARIMA baseline:** tidak signifikan, mengkonfirmasi log returns mendekati white noise
+- **Volatility persistence (α+β):** 0.9277 — volatilitas sangat 
+  persisten, sekali bergejolak bertahan lama
 - **Volatility forecast 5 hari:** rata-rata 1.17% per hari 
   (di bawah baseline 1.28% — kondisi diprediksi lebih tenang)
-- **Mean reversion terdeteksi:** volatilitas naik bertahap 
-  1.15% → 1.19% mencerminkan persistence 0.9277
-- **Dollar bars:** 355 bars dari 485 time bars — setiap bar 
-  merepresentasikan 500 miliar rupiah diperdagangkan
+- **Dollar bars:** 355 bars dari 485 time bars
 - **Triple barrier labels:** Buy 49.3% / Sell 39.7% / Hold 10.7%
-  — class imbalance terdeteksi, perlu penanganan sebelum ML training
-- **BBCA karakteristik:** saham aktif dengan bias upward, 
-  jarang stagnan lebih dari 10 hari
-- **Feature terpenting:** ma_dist (0.253) — jarak harga dari MA20 
-  adalah sinyal paling informatif untuk prediksi arah BBCA
-- **Feature terlemah:** log_return (0.074) — konfirmasi final 
-  bahwa returns BBCA mendekati white noise
-- **Model accuracy:** 20–51% per fold — tidak konsisten, 
-  belum reliable untuk trading nyata
-- **Volume sebagai sinyal:** vol_ratio (0.202) — volume relatif 
-  terhadap rata-rata historis adalah sinyal kedua terkuat
+- **Feature terpenting:** ma_dist (0.253) — mean reversion signal
+- **Feature terlemah:** log_return (0.074) — konfirmasi white noise
+- **Model accuracy:** 40-42% — tidak konsisten lintas fold
 
 ## Pipeline
 1. Data acquisition — yfinance API
 2. Preprocessing — missing values, duplicate check
 3. Log returns computation
 4. Distribusi analysis — skewness, kurtosis
-5. Outlier detection — z-score method
+5. Outlier detection — z-score + konteks makroekonomi
 6. Rolling volatility — 21-day annualized
 7. Stationarity testing — Augmented Dickey-Fuller
 8. ARIMA(1,0,1) baseline modeling
 9. GARCH(1,1) volatility modeling & persistence analysis
-10. Volatility forecasting — GARCH 5-day ahead forecast
+10. Volatility forecasting — 5-day ahead
 11. Dollar bars — de Prado alternative data structure
 12. Triple barrier method — proper ML labeling
-13. Feature engineering — momentum, volatility, volume ratio, mean reversion
-14. Random Forest classifier — TimeSeriesSplit 5-fold cross validation
+13. Feature engineering — momentum, volatility, volume, mean reversion
+14. Random Forest — TimeSeriesSplit 5-fold cross validation
 15. Feature importance analysis
-
-## Tech Stack
-- Python 3
-- pandas, numpy, matplotlib
-- statsmodels
-- yfinance
-
-## Key Insight
-Semua model time series (ARIMA, GARCH) harus dibangun di atas 
-log returns, bukan harga — karena harga tidak stasioner dan 
-menghasilkan spurious regression. ADF test mengonfirmasi 
-log returns BBCA stasioner dengan p-value < 0.001.
-De Prado (2018): model ML yang dilatih di time bars biasa 
-menghasilkan spurious results. Dollar bars + triple barrier 
-labeling adalah fondasi yang benar untuk quant ML strategy.
-Feature importance mengkonfirmasi temuan statistik sebelumnya:
-log_return BBCA mendekati white noise (ADF, ACF/PACF, ARIMA) —
-model sederhana tidak cukup untuk mengalahkan pasar. Improvement
-membutuhkan fitur yang lebih sophisticated dan data yang lebih banyak.
-
-## Next Steps
-- ~~ACF/PACF analysis~~ ✓
-- ~~ARIMA baseline modeling~~ ✓
-- ~~GARCH volatility modeling~~ ✓
-- ~~Volatility forecasting~~ ✓
-- ~~Dollar bars (de Prado)~~ ✓
-- ~~Triple barrier labeling~~ ✓
-- ~~Feature engineering~~ ✓
-- ~~Random Forest + feature importance~~ ✓
-- SMOTE untuk handle class imbalance
-- XGBoost sebagai model alternatif
-- Integrasi GARCH volatility sebagai fitur ML
-- Backtesting & Sharpe Ratio evaluation
-- Ekspansi ke multi-saham BEI
+16. SMOTE — handling class imbalance
+17. GARCH integration sebagai fitur ML
 
 ## Model Performance Summary
 
@@ -95,13 +52,45 @@ membutuhkan fitur yang lebih sophisticated dan data yang lebih banyak.
 |-------|------------|-------|
 | ARIMA(1,0,1) | Baseline time series | Tidak signifikan (p>0.05) |
 | GARCH(1,1) | Volatility modeling | Beta signifikan, persistence 0.9277 |
-| Random Forest | ML classifier | Akurasi 20–51%, belum konsisten |
+| Random Forest | ML classifier | ~42%, tidak konsisten |
+| Random Forest + SMOTE | Handle imbalance | ~42%, minimal improvement |
+| Random Forest + GARCH | Hybrid approach | 41.22%, tidak membantu |
 
-Ketiga model mengkonfirmasi: BBCA adalah saham efisien yang 
-sulit diprediksi dengan fitur teknikal sederhana. 
-Pendekatan yang lebih sophisticated diperlukan.
+## Key Insight
+Seluruh pipeline mengkonfirmasi satu temuan yang konsisten:
+**BBCA adalah pasar yang cukup efisien.** Fitur teknikal sederhana 
+tidak cukup untuk menghasilkan alpha yang konsisten.
+
+ARIMA tidak signifikan, Random Forest akurasi rendah, dan GARCH 
+vol tidak meningkatkan prediksi arah — semuanya konsisten dengan 
+Efficient Market Hypothesis pada saham blue chip yang heavily traded.
+
+Untuk alpha yang nyata dibutuhkan:
+- Data intraday tick level (bukan daily)
+- Fitur sophisticated: NLP sentiment, macro indicators, order flow
+- Lebih banyak data historis
+- Model yang lebih powerful: XGBoost, LSTM
+
+Ini adalah temuan yang valid secara ilmiah — bukan kegagalan 
+pipeline, tapi konfirmasi empiris bahwa pasar BBCA tidak bisa 
+dikalahkan dengan pendekatan sederhana.
+
+## Tech Stack
+- Python 3
+- pandas, numpy, matplotlib
+- statsmodels, arch
+- scikit-learn, imbalanced-learn
+- yfinance
+
+## Next Steps
+- [ ] XGBoost sebagai model alternatif
+- [ ] NLP sentiment dari berita keuangan sebagai fitur
+- [ ] Integrasi data makroekonomi (suku bunga, kurs)
+- [ ] Data intraday untuk dollar bars yang lebih akurat
+- [ ] Ekspansi ke multi-saham BEI
+- [ ] Backtesting & Sharpe Ratio evaluation
 
 ## Author
-Aril Satrio Saputro  
-Data Science Student | Universitas Airlangga  
-www.linkedin.com/in/aril-saputro-530168323 | satrioaril34@gmail.com
+Aril Satrio Saputro
+Data Science Student | Universitas Airlangga
+GitHub: github.com/satrio-lakers
